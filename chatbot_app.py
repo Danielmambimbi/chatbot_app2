@@ -195,46 +195,59 @@ def seuil_response(question_utilisateur, seuil=0.65):
     return response
 
 def chatbot(user_input):
-    resp=seuil_response(user_input)
-    input_error="no error"
-    score=resp["score"]
-    index_max=resp["index_max"]
-    pred_intent_ques=det_intent_quest.predict([user_input])[0]
-    pred_intent_res=det_intent_res.predict([reponses[index_max]])[0]
-    res_chat=reponses[index_max]    
-    
-    if (score>=0.60):
-        if (pred_intent_ques=="contact_humain"):
-            res_chat="contact_humain"
-        elif (pred_intent_ques=="recherche_produit"):
-           res_chat=search_product(user_input) 
-        elif (pred_intent_ques==pred_intent_res):
-            a=[1,2,3]
-            a=random.choice(a)
-            if a==1:
-                res_chat=reponses[index_max]
-            else:
-                res_chat=intents_responses[pred_intent_ques]
-                res_chat=random.choice(res_chat)
-        else:
-           res_chat=intents_responses[pred_intent_ques]
-           res_chat=random.choice(res_chat)
+    try:
+        # Vérification explicite du vectorizer
+        if not hasattr(det_intent_quest.named_steps['tfidf'], 'idf_'):
+            raise ValueError("Le modèle TF-IDF n'est pas correctement initialisé")
+        resp=seuil_response(user_input)
         input_error="no error"
-    else:
-        res_chat=random.choice(res_error)
-        input_error="error"
-    
-    res_chat=res_chat.replace("\n ", "<br>")
-    res_chat=res_chat.replace("\n", "<br>")
-    response={
-        "input_error":input_error,
-        "res_chat":res_chat,
-        "score":score,
-        "det_intent_quest":pred_intent_ques,
-        "det_intent_res":pred_intent_res
-    }
-    
-    return response
+        score=resp["score"]
+        index_max=resp["index_max"]
+        pred_intent_ques=det_intent_quest.predict([user_input])[0]
+        pred_intent_res=det_intent_res.predict([reponses[index_max]])[0]
+        res_chat=reponses[index_max]    
+        
+        if (score>=0.60):
+            if (pred_intent_ques=="contact_humain"):
+                res_chat="contact_humain"
+            elif (pred_intent_ques=="recherche_produit"):
+               res_chat=search_product(user_input) 
+            elif (pred_intent_ques==pred_intent_res):
+                a=[1,2,3]
+                a=random.choice(a)
+                if a==1:
+                    res_chat=reponses[index_max]
+                else:
+                    res_chat=intents_responses[pred_intent_ques]
+                    res_chat=random.choice(res_chat)
+            else:
+               res_chat=intents_responses[pred_intent_ques]
+               res_chat=random.choice(res_chat)
+            input_error="no error"
+        else:
+            res_chat=random.choice(res_error)
+            input_error="error"
+        
+        res_chat=res_chat.replace("\n ", "<br>")
+        res_chat=res_chat.replace("\n", "<br>")
+        response={
+            "input_error":input_error,
+            "res_chat":res_chat,
+            "score":score,
+            "det_intent_quest":pred_intent_ques,
+            "det_intent_res":pred_intent_res
+        }
+        
+        return response
+    except Exception as e:
+        print(f"ERREUR CRITIQUE: {str(e)}")  # Visible dans les logs Railway
+        return {
+            "input_error": "error",
+            "res_chat": "Désolé, service temporairement indisponible. Notre équipe technique a été notifiée.",
+            "score": 0,
+            "det_intent_quest": "error",
+            "det_intent_res": "error"
+        }
 
 
 app=Flask(__name__)
@@ -333,6 +346,7 @@ def chat():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
