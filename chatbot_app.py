@@ -28,11 +28,11 @@ def search_product(message):
     def search_product_by_keyword(keyword):
         try:
             conn = mysql.connector.connect(
-                host="127.0.0.1",
-                user="ecommerce_1",
-                password="0896966760",
-                database="ecommerce_1",
-                port=3306
+            host="mysql-danielmambimbi.alwaysdata.net",
+            user="417759_ecom1",  # Remplace par ton utilisateur MySQL
+            password="0896966760",  # Mets ton mot de passe MySQL
+            database="danielmambimbi_ecommerce1",
+            port=3306
             )
             cursor = conn.cursor()
             query = "SELECT nom, prix FROM produits WHERE nom LIKE %s LIMIT 3"
@@ -285,4 +285,5 @@ def chat():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
+
 
