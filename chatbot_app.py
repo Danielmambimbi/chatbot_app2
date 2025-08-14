@@ -255,7 +255,38 @@ def add_brs():
     message=request.form["message"]
     message=add_br(message)
     return message
-    
+
+@app.route('/test-components')
+def test_components():
+    tests = {
+        "MySQL": test_mysql(),
+        "spaCy": test_spacy(),
+        "SentenceTransformer": test_transformer()
+    }
+    return jsonify(tests)
+
+def test_mysql():
+    try:
+        conn = con_BDD()
+        conn.close()
+        return "OK"
+    except Exception as e:
+        return str(e)
+
+def test_spacy():
+    try:
+        nlp("test")
+        return "OK"
+    except Exception as e:
+        return str(e)
+
+def test_transformer():
+    try:
+        model.encode(["test"])
+        return "OK"
+    except Exception as e:
+        return str(e)
+
 
 @app.route('/chat',methods=["POST"])
 def chat():
@@ -302,6 +333,7 @@ def chat():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
