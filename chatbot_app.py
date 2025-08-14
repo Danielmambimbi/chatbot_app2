@@ -259,31 +259,49 @@ def add_brs():
 
 @app.route('/chat',methods=["POST"])
 def chat():
-    att="Veuillez patienter"
-    response=""
-    user_input=request.form["message"]
-    response=chatbot(user_input)
-    score=response["score"]
-    intent_quest=response["det_intent_quest"]
-    intent_res=response["det_intent_res"]
-    input_error=response["input_error"]
-    response=response["res_chat"]
- 
-    promt=f"promt:{user_input}\t intent_quest={intent_quest} \t intent_res={intent_res}\t scrore={score}\n"
-    # save_promt=New_promt(promt)
-    
-    all_response={
-                "response_trans":response,
-                "att":att,
-                "input_error":input_error
-                # "save_promt":save_promt
-            }
-    response=all_response
-    return response
+    try:
+        att="Veuillez patienter"
+        response=""
+        print("\n=== NOUVELLE REQUÊTE ===")  # Visible dans les logs Railway
+        print("Headers:", request.headers)
+        print("Form data:", request.form)
+        
+        if 'message' not in request.form:
+            return jsonify({"error": "Missing 'message' parameter"}), 400
+            
+        user_input = request.form['message']
+        print("Message reçu:", user_input)
+        user_input=request.form["message"]
+        response=chatbot(user_input)
+        score=response["score"]
+        intent_quest=response["det_intent_quest"]
+        intent_res=response["det_intent_res"]
+        input_error=response["input_error"]
+        response=response["res_chat"]
+        
+        promt=f"promt:{user_input}\t intent_quest={intent_quest} \t intent_res={intent_res}\t scrore={score}\n"
+        # save_promt=New_promt(promt)
+        
+        all_response={
+                    "response_trans":response,
+                    "att":att,
+                    "input_error":input_error
+                    # "save_promt":save_promt
+                }
+        response=all_response
+        return response
+    except Exception as e:
+        import traceback
+        traceback.print_exc()  # Log l'erreur complète
+        return jsonify({
+            "error": "Erreur interne",
+            "details": str(e)
+        }), 500
 # [...] (tout le reste de votre code)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
