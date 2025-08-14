@@ -1,6 +1,11 @@
 flask==3.0.2
 gunicorn==21.2.0
-sentence-transformers==2.2.2  # Version spécifique pour stabilité
-torch==2.0.1 --extra-index-url https://download.pytorch.org/whl/cpu  # Version CPU
-pandas==1.5.3
-scikit-learn==1.2.2
+sentence-transformers==2.2.2
+torch==2.2.1
+pandas==2.1.4
+scikit-learn==1.4.0
+mysql-connector-python==8.1.0
+spacy==3.7.4
+joblib==1.3.2
+numpy==1.26.3
+python-dotenv==1.0.0
